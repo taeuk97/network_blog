@@ -1,0 +1,28 @@
+---
+interface Props {
+  /** "01" → renders "01 / Label" */
+  num?: string;
+  label: string;
+  /** Heading text. Wrap a phrase in *asterisks* to highlight it. */
+  title: string;
+  lede?: string;
+  id?: string;
+  as?: 'h1' | 'h2';
+}
+const { num, label, title, lede, id, as: Tag = 'h2' } = Astro.props;
+
+const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const titleHtml = escape(title)
+  .replace(/\*(.+?)\*/g, '<em>$1</em>')
+  .replace(/\n/g, '<br />');
+---
+
+<div class="section-heading">
+  <p class="eyebrow">
+    {num && <span class="num">{num} /</span>}
+    {label}
+  </p>
+  <Tag id={id} set:html={titleHtml} />
+  {lede && <p class="lede">{lede}</p>}
+  <slot />
+</div>

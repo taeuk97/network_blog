@@ -1,0 +1,23 @@
+---
+interface Props {
+  /** Shell-style line shown above the title, e.g. "ls labs/" */
+  command?: string;
+  title: string;
+  text?: string;
+  class?: string;
+}
+const { command, title, text, class: className } = Astro.props;
+---
+
+<div class:list={['empty', className]} role="status">
+  {
+    command && (
+      <p class="prompt" aria-hidden="true">
+        <b>$</b> {command}
+      </p>
+    )
+  }
+  <h3>{title}</h3>
+  {text && <p>{text}</p>}
+  <slot />
+</div>

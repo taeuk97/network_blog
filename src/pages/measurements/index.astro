@@ -1,0 +1,166 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import CategoryGrid from '@/components/CategoryGrid.astro';
+import ContentIndex from '@/components/ContentIndex.astro';
+import { measurementCategories, measurementEnvironment, measurementMetrics } from '@/config/taxonomy';
+import { integrations } from '@/config/site';
+import { getPosts } from '@/lib/content';
+
+const items = await getPosts('measurements');
+const subtitle = 'Understanding the Internet through real-world measurements.';
+---
+
+<BaseLayout title="Internet Measurements" description={subtitle}>
+  <PageHero eyebrow="Measure · Real-world Data" title="Internet *Measurements*" {subtitle}>
+    <p class="hero-note">
+      Measurements here are collected from real connections and published together with how they were taken and how
+      they should be read. Charts are published only from actual measured data.
+    </p>
+  </PageHero>
+
+  <section class="page-section shell" aria-labelledby="setup-title">
+    <h2 class="block-title" id="setup-title"><span class="mono">01</span>Measurement setup</h2>
+    <div class="setup">
+      <div class="setup-block">
+        <h3 class="setup-label mono">environment</h3>
+        <ul class="env">
+          {
+            measurementEnvironment.map((e) => (
+              <li>
+                <span class="env-name">{e.name}</span>
+                <span class="env-detail">{e.detail}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="setup-block">
+        <h3 class="setup-label mono">metrics to cover</h3>
+        <ul class="tags metrics">
+          {measurementMetrics.map((m) => <li class="tag tag-mono">{m}</li>)}
+        </ul>
+        <div class="monitor">
+          <p class="setup-label mono">live monitor</p>
+          {
+            integrations.starlinkMonitorUrl ? (
+              <a class="text-link" href={integrations.starlinkMonitorUrl} target="_blank" rel="noopener noreferrer">
+                KAIST–ACAI Starlink Monitor <span class="arrow" aria-hidden="true">↗</span>
+              </a>
+            ) : (
+              <p class="monitor-pending">
+                <span class="status" data-status="Planned">Planned</span>
+                Link to the KAIST–ACAI Starlink Monitor
+              </p>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section shell" aria-labelledby="cat-title">
+    <h2 class="block-title" id="cat-title"><span class="mono">02</span>Categories</h2>
+    <CategoryGrid categories={measurementCategories} {items} />
+  </section>
+
+  <section class="page-section shell" id="entries" aria-labelledby="entries-title">
+    <h2 class="block-title" id="entries-title"><span class="mono">03</span>Measurement reports</h2>
+    <ContentIndex {items} categories={measurementCategories} folder="measurements" noun="measurements" />
+  </section>
+</BaseLayout>
+
+<style>
+  .hero-note {
+    max-width: 640px;
+    margin-top: 14px;
+    padding-left: 16px;
+    border-left: 2px solid var(--accent-border);
+    color: var(--subtle);
+    font-size: 0.875rem;
+  }
+
+  .setup {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .setup-block {
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: rgba(16, 22, 38, 0.82);
+  }
+
+  .setup-label {
+    margin-bottom: 16px;
+    color: var(--subtle);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .env {
+    padding: 0;
+    list-style: none;
+  }
+
+  .env li {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.9375rem;
+  }
+
+  .env-name {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .env-detail {
+    color: var(--muted);
+  }
+
+  .metrics {
+    gap: 6px;
+  }
+
+  .monitor {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .monitor .setup-label {
+    margin-bottom: 10px;
+  }
+
+  .monitor-pending {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  @media (max-width: 800px) {
+    .setup {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .setup-block {
+      padding: 22px;
+    }
+
+    .env li {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+  }
+</style>

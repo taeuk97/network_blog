@@ -1,0 +1,87 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { url } from '@/lib/url';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  index?: number;
+  headingLevel?: 'h2' | 'h3';
+}
+const { project, index, headingLevel: H = 'h3' } = Astro.props;
+const { title, description, status, keywords } = project.data;
+const href = url(`/projects/${project.id}/`);
+const num = String(index ?? project.data.order).padStart(2, '0');
+---
+
+<article class="card card-link project-card" data-status-item={status}>
+  <div class="pc-top">
+    <p class="eyebrow"><span class="num">Project {num}</span></p>
+    <span class="status" data-status={status}>{status}</span>
+  </div>
+  <H><a class="stretched" href={href}>{title}</a></H>
+  <p class="pc-desc">{description}</p>
+  {
+    keywords.length > 0 && (
+      <ul class="tags" aria-label="Keywords">
+        {keywords.map((k) => (
+          <li class="tag tag-mono">{k}</li>
+        ))}
+      </ul>
+    )
+  }
+  <span class="text-link pc-more" aria-hidden="true">View project <span class="arrow">→</span></span>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100%;
+  }
+
+  .project-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .pc-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+  }
+
+  h2,
+  h3 {
+    margin: 18px 0 14px;
+    font-size: 1.5rem;
+    letter-spacing: -0.015em;
+  }
+
+  h2 a,
+  h3 a {
+    text-decoration: none;
+  }
+
+  .pc-desc {
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .tags {
+    margin-bottom: 28px;
+  }
+
+  .pc-more {
+    margin-top: auto;
+  }
+
+  .project-card:hover .pc-more {
+    color: #fff;
+  }
+
+  .project-card:hover .pc-more .arrow {
+    transform: translateX(3px);
+  }
+</style>

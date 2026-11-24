@@ -1,0 +1,20 @@
+---
+interface Props {
+  eyebrow: string;
+  /** Wrap a phrase in *asterisks* to highlight it. */
+  title: string;
+  subtitle?: string;
+}
+const { eyebrow, title, subtitle } = Astro.props;
+const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const titleHtml = escape(title).replace(/\*(.+?)\*/g, '<em>$1</em>');
+---
+
+<header class="page-hero">
+  <div class="shell">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 set:html={titleHtml} />
+    {subtitle && <p class="subtitle">{subtitle}</p>}
+    <slot />
+  </div>
+</header>

@@ -1,0 +1,286 @@
+---
+/**
+ * Filterable article list used by Blog, Labs and Measurements.
+ * Search, category and tag filters run client-side over pre-rendered rows,
+ * and the active filters are mirrored to the URL (?q=&category=&tag=).
+ */
+import ArticleRow from './ArticleRow.astro';
+import EmptyState from './EmptyState.astro';
+import Icon from './Icon.astro';
+import { tagCounts, type PostItem } from '@/lib/content';
+import type { Category } from '@/config/taxonomy';
+
+interface Props {
+  items: PostItem[];
+  categories: readonly Category[];
+  /** Folder name used in the empty-state prompt, e.g. "blog" */
+  folder: string;
+  noun?: string;
+}
+const { items, categories, folder, noun = 'posts' } = Astro.props;
+const tags = tagCounts(items);
+const countFor = (name: string) => items.filter((i) => i.category === name).length;
+---
+
+<div class="index" data-index>
+  <div class="toolbar">
+    <label class="search">
+      <Icon name="search" size={17} />
+      <span class="sr-only">Search {noun}</span>
+      <input type="search" placeholder={`Search ${noun}…`} autocomplete="off" data-search disabled={items.length === 0} />
+    </label>
+
+    <div class="filter-group" role="group" aria-label="Filter by category">
+      <button type="button" class="chip" aria-pressed="true" data-category="">
+        All <span class="count">{items.length}</span>
+      </button>
+      {
+        categories.map((c) => (
+          <button type="button" class="chip" aria-pressed="false" data-category={c.name} data-slug={c.slug}>
+            {c.name} <span class="count">{countFor(c.name)}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      tags.length > 0 && (
+        <div class="filter-group tags-group" role="group" aria-label="Filter by tag">
+          <span class="group-label mono">tags</span>
+          {tags.map(([t, n]) => (
+            <button type="button" class="chip chip-tag" aria-pressed="false" data-tag={t}>
+              {t} <span class="count">{n}</span>
+            </button>
+          ))}
+        </div>
+      )
+    }
+  </div>
+
+  <p class="result-line mono" aria-live="polite" data-result-line>
+    {items.length} {items.length === 1 ? 'entry' : 'entries'}
+  </p>
+
+  {
+    items.length > 0 ? (
+      <>
+        <div class="article-list" data-list>
+          {items.map((item) => (
+            <ArticleRow item={item} headingLevel="h2" />
+          ))}
+        </div>
+        <div hidden data-no-match>
+          <EmptyState command="grep -ri" title="No matching entries." text="Try another keyword, or clear the filters.">
+            <button type="button" class="button button-secondary button-sm" data-clear>
+              Clear filters
+            </button>
+          </EmptyState>
+        </div>
+      </>
+    ) : (
+      <EmptyState
+        command={`ls ${folder}/`}
+        title="Nothing published yet."
+        text={`The first ${noun} are being prepared. They will appear here — with search, categories and tags — as soon as they are published.`}
+      />
+    )
+  }
+</div>
+
+<style>
+  .toolbar {
+    display: grid;
+    gap: 18px;
+    padding-bottom: 28px;
+  }
+
+  .search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 460px;
+    color: var(--subtle);
+  }
+
+  .search :global(.icon) {
+    position: absolute;
+    left: 16px;
+    pointer-events: none;
+  }
+
+  .search input {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 16px 10px 44px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: rgba(13, 18, 32, 0.8);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9375rem;
+    transition: border-color 0.2s;
+  }
+
+  .search input::placeholder {
+    color: var(--subtle);
+  }
+
+  .search input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .search input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .group-label {
+    margin-right: 4px;
+    color: var(--subtle);
+    font-size: 0.75rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(16, 22, 38, 0.7);
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+
+  .chip:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  .chip[aria-pressed='true'] {
+    color: #fff;
+    border-color: rgba(161, 147, 255, 0.55);
+    background: var(--primary-soft);
+  }
+
+  .chip .count {
+    color: var(--subtle);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+  }
+
+  .chip[aria-pressed='true'] .count {
+    color: var(--primary);
+  }
+
+  .chip-tag {
+    padding: 4px 11px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .result-line {
+    margin-bottom: 4px;
+    color: var(--subtle);
+    font-size: 0.75rem;
+  }
+</style>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-index]')) {
+    const rows = [...root.querySelectorAll<HTMLElement>('[data-item]')];
+    const search = root.querySelector<HTMLInputElement>('[data-search]');
+    const catButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-category]')];
+    const tagButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-tag]')];
+    const noMatch = root.querySelector<HTMLElement>('[data-no-match]');
+    const resultLine = root.querySelector<HTMLElement>('[data-result-line]');
+    const clear = root.querySelector<HTMLButtonElement>('[data-clear]');
+
+    const state = { q: '', category: '', tag: '' };
+
+    const read = () => {
+      const p = new URLSearchParams(location.search);
+      state.q = p.get('q') ?? '';
+      const cat = p.get('category') ?? '';
+      // accept either the category slug or its full name
+      const match = catButtons.find((b) => b.dataset.slug === cat || b.dataset.category === cat);
+      state.category = match?.dataset.category ?? '';
+      state.tag = p.get('tag') ?? '';
+      if (search) search.value = state.q;
+    };
+
+    const write = () => {
+      const p = new URLSearchParams();
+      if (state.q) p.set('q', state.q);
+      const slug = catButtons.find((b) => b.dataset.category === state.category)?.dataset.slug;
+      if (state.category && slug) p.set('category', slug);
+      if (state.tag) p.set('tag', state.tag);
+      const qs = p.toString();
+      history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+    };
+
+    const apply = () => {
+      const q = state.q.trim().toLowerCase();
+      let shown = 0;
+      for (const row of rows) {
+        const okQ = !q || (row.dataset.search ?? '').includes(q);
+        const okC = !state.category || row.dataset.category === state.category;
+        const okT = !state.tag || (row.dataset.tags ?? '').split('|').includes(state.tag);
+        const ok = okQ && okC && okT;
+        row.hidden = !ok;
+        if (ok) shown++;
+      }
+      catButtons.forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.category ?? '') === state.category)));
+      tagButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tag === state.tag)));
+      if (noMatch) noMatch.hidden = rows.length === 0 || shown > 0;
+      if (resultLine) {
+        const filtered = shown !== rows.length;
+        resultLine.textContent = `${filtered ? `${shown} of ` : ''}${rows.length} ${rows.length === 1 ? 'entry' : 'entries'}`;
+      }
+    };
+
+    catButtons.forEach((b) =>
+      b.addEventListener('click', () => {
+        state.category = b.dataset.category ?? '';
+        write();
+        apply();
+      }),
+    );
+    tagButtons.forEach((b) =>
+      b.addEventListener('click', () => {
+        state.tag = state.tag === b.dataset.tag ? '' : (b.dataset.tag ?? '');
+        write();
+        apply();
+      }),
+    );
+    search?.addEventListener('input', () => {
+      state.q = search.value;
+      write();
+      apply();
+    });
+    clear?.addEventListener('click', () => {
+      state.q = state.category = state.tag = '';
+      if (search) search.value = '';
+      write();
+      apply();
+    });
+
+    read();
+    apply();
+  }
+</script>

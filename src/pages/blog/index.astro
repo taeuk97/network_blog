@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import CategoryGrid from '@/components/CategoryGrid.astro';
+import ContentIndex from '@/components/ContentIndex.astro';
+import { blogCategories } from '@/config/taxonomy';
+import { getPosts } from '@/lib/content';
+
+const items = await getPosts('blog');
+const title = 'Technical Blog';
+const subtitle = 'Understanding the technologies behind modern communication networks.';
+---
+
+<BaseLayout title={title} description={subtitle}>
+  <PageHero eyebrow="Study · Notes & Concepts" title="Technical *Blog*" {subtitle} />
+
+  <section class="page-section shell" aria-labelledby="cat-title">
+    <h2 class="block-title" id="cat-title"><span class="mono">01</span>Categories</h2>
+    <CategoryGrid categories={blogCategories} {items} />
+  </section>
+
+  <section class="page-section shell" id="entries" aria-labelledby="entries-title">
+    <h2 class="block-title" id="entries-title"><span class="mono">02</span>Articles</h2>
+    <ContentIndex {items} categories={blogCategories} folder="blog" noun="articles" />
+  </section>
+</BaseLayout>

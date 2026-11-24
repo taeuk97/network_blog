@@ -1,0 +1,127 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import EmptyState from '@/components/EmptyState.astro';
+import { projectStatuses } from '@/config/taxonomy';
+import { getProjects } from '@/lib/content';
+
+const projects = await getProjects();
+const subtitle = 'Engineering projects that bring individual studies, labs and measurements together into complete systems.';
+const count = (s: string) => projects.filter((p) => p.data.status === s).length;
+---
+
+<BaseLayout title="Engineering Projects" description={subtitle}>
+  <PageHero eyebrow="Integrate · End-to-end Work" title="Engineering *Projects*" {subtitle} />
+
+  <section class="page-section shell" aria-labelledby="projects-title">
+    <h2 class="sr-only" id="projects-title">Projects</h2>
+    {
+      projects.length > 0 ? (
+        <div data-project-index>
+          <div class="status-filter" role="group" aria-label="Filter by status">
+            <button type="button" class="chip" aria-pressed="true" data-status-filter="">
+              All <span class="count">{projects.length}</span>
+            </button>
+            {projectStatuses.map((s) => (
+              <button type="button" class="chip" aria-pressed="false" data-status-filter={s} disabled={count(s) === 0}>
+                {s} <span class="count">{count(s)}</span>
+              </button>
+            ))}
+          </div>
+          <ul class="project-list">
+            {projects.map((p, i) => (
+              <li data-status={p.data.status}>
+                <ProjectCard project={p} index={i + 1} headingLevel="h3" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <EmptyState command="ls projects/" title="No projects yet." text="Projects will be listed here once they are added." />
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .status-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(16, 22, 38, 0.7);
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+
+  .chip:hover:not(:disabled) {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  .chip:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .chip[aria-pressed='true'] {
+    color: #fff;
+    border-color: rgba(161, 147, 255, 0.55);
+    background: var(--primary-soft);
+  }
+
+  .chip .count {
+    color: var(--subtle);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+  }
+
+  .project-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-list li[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    .project-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector('[data-project-index]');
+  if (root) {
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-status-filter]')];
+    const items = [...root.querySelectorAll<HTMLElement>('li[data-status]')];
+    buttons.forEach((b) =>
+      b.addEventListener('click', () => {
+        const s = b.dataset.statusFilter ?? '';
+        buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        items.forEach((li) => (li.hidden = !!s && li.dataset.status !== s));
+      }),
+    );
+  }
+</script>

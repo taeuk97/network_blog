@@ -1,0 +1,186 @@
+---
+import SectionHeading from '@/components/SectionHeading.astro';
+import ArticleRow from '@/components/ArticleRow.astro';
+import EmptyState from '@/components/EmptyState.astro';
+import { getAllPosts } from '@/lib/content';
+import { url } from '@/lib/url';
+
+const posts = await getAllPosts();
+const recent = posts.slice(0, 4);
+const count = (c: string) => posts.filter((p) => p.collection === c).length;
+
+const types = [
+  {
+    key: 'blog',
+    path: 'blog/',
+    title: 'Technical Blog',
+    verb: 'Study',
+    text: 'Concepts and protocols explained in my own words — from the TCP/IP stack to service provider networks.',
+    href: '/blog/',
+  },
+  {
+    key: 'labs',
+    path: 'labs/',
+    title: 'Network Labs',
+    verb: 'Build',
+    text: 'Hands-on builds with topologies, configurations, verification output and what broke along the way.',
+    href: '/labs/',
+  },
+  {
+    key: 'measurements',
+    path: 'measurements/',
+    title: 'Internet Measurements',
+    verb: 'Measure',
+    text: 'Real-world measurements over Starlink and terrestrial access, with the data and the interpretation.',
+    href: '/measurements/',
+  },
+];
+---
+
+<section class="section" id="document" aria-labelledby="document-title">
+  <div class="shell">
+    <div data-reveal>
+      <SectionHeading
+        num="03"
+        label="What I Document"
+        title={'Study. Build.\n*Measure. Understand.*'}
+        lede="Everything I learn is written down. Notes, labs and measurements are kept separately, but they all link back to the same goal: understanding how networks really behave."
+        id="document-title"
+      />
+    </div>
+
+    <div class="types">
+      {
+        types.map((t, i) => {
+          const n = count(t.key);
+          return (
+            <a class="card card-link type" href={url(t.href)} data-reveal style={`--reveal-delay:${i * 70}ms`}>
+              <span class="type-path mono">~/{t.path}</span>
+              <span class="type-verb">{t.verb}</span>
+              <h3>{t.title}</h3>
+              <p>{t.text}</p>
+              <span class="type-foot">
+                <span class="mono">{n === 0 ? 'No entries yet' : `${n} ${n === 1 ? 'entry' : 'entries'}`}</span>
+                <span class="arrow" aria-hidden="true">→</span>
+              </span>
+            </a>
+          );
+        })
+      }
+    </div>
+
+    <div class="recent" data-reveal>
+      <div class="recent-head">
+        <h3>Recent posts</h3>
+        {posts.length > 0 && <span class="mono">{posts.length} total</span>}
+      </div>
+      {
+        recent.length > 0 ? (
+          <div class="article-list">
+            {recent.map((p) => (
+              <ArticleRow item={p} showType showTags={false} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            command="ls -t ~/blog ~/labs ~/measurements"
+            title="The first entries are on their way."
+            text="Nothing has been published yet. New notes, labs and measurements will appear here automatically as soon as they are written."
+          />
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .types {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .type {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+  }
+
+  .type:hover {
+    transform: translateY(-3px);
+  }
+
+  .type-path {
+    color: var(--subtle);
+    font-size: 0.75rem;
+  }
+
+  .type-verb {
+    margin-top: 22px;
+    color: var(--primary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .type h3 {
+    margin-top: 6px;
+    font-size: 1.375rem;
+    letter-spacing: -0.015em;
+  }
+
+  .type p {
+    margin-top: 12px;
+    margin-bottom: 28px;
+    color: var(--muted);
+    font-size: 0.9375rem;
+  }
+
+  .type-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--subtle);
+    font-size: 0.75rem;
+  }
+
+  .type-foot .arrow {
+    color: var(--accent);
+    font-size: 1rem;
+    transition: transform 0.2s var(--ease);
+  }
+
+  .type:hover .type-foot .arrow {
+    transform: translateX(4px);
+  }
+
+  .recent {
+    margin-top: 64px;
+  }
+
+  .recent-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+  }
+
+  .recent-head h3 {
+    font-size: 1.25rem;
+  }
+
+  .recent-head .mono {
+    color: var(--subtle);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 900px) {
+    .types {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

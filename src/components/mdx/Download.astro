@@ -1,0 +1,82 @@
+---
+/**
+ * <Download href="/datasets/starlink-rtt.csv" label="Starlink RTT dataset" meta="CSV · 2.1 MB" />
+ * `href` is a path under public/ — the base path is added automatically.
+ */
+import Icon from '@/components/Icon.astro';
+import { url } from '@/lib/url';
+
+interface Props {
+  href: string;
+  label: string;
+  /** e.g. "CSV · 2.1 MB" */
+  meta?: string;
+  description?: string;
+}
+const { href, label, meta, description } = Astro.props;
+const filename = href.split('/').pop();
+---
+
+<a class="download" href={url(href)} download>
+  <span class="dl-icon"><Icon name="download" size={18} /></span>
+  <span class="dl-text">
+    <span class="dl-label">{label}</span>
+    {description && <span class="dl-desc">{description}</span>}
+    <span class="dl-meta mono">{filename}{meta && ` · ${meta}`}</span>
+  </span>
+</a>
+
+<style>
+  .download {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 1.5em 0;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: rgba(16, 22, 38, 0.82);
+    color: var(--text) !important;
+    text-decoration: none !important;
+    transition: border-color 0.2s;
+  }
+
+  .download:hover {
+    border-color: var(--accent-border);
+  }
+
+  .dl-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .dl-text {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    line-height: 1.5;
+  }
+
+  .dl-label {
+    font-weight: 600;
+  }
+
+  .dl-desc {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  .dl-meta {
+    overflow: hidden;
+    color: var(--subtle);
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

@@ -1,0 +1,257 @@
+---
+/**
+ * Layout for a single Blog / Lab / Measurement entry.
+ * Renders the Markdown body with TOC, code tooling, math, diagrams and related posts.
+ */
+import 'katex/dist/katex.min.css';
+import '@/styles/prose.css';
+
+import { getEntry, render } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import Toc from '@/components/Toc.astro';
+import ArticleRow from '@/components/ArticleRow.astro';
+import { mdxComponents } from '@/components/mdx';
+import { collectionMeta, type PostCollection } from '@/config/taxonomy';
+import { formatDate, getAllPosts, isoDate, relatedPosts, toItem, type PostEntry } from '@/lib/content';
+import { url } from '@/lib/url';
+
+interface Props {
+  collection: PostCollection;
+  entry: PostEntry;
+}
+const { collection, entry } = Astro.props;
+const meta = collectionMeta[collection];
+const data = entry.data as PostEntry['data'] & Record<string, any>;
+const item = toItem(collection, entry);
+const { Content, headings } = await render(entry);
+const related = relatedPosts(item, await getAllPosts());
+const category = meta.categories.find((c) => c.name === data.category);
+const project = data.project ? await getEntry('projects', data.project) : undefined;
+
+// Collection-specific facts shown under the title
+const facts: { label: string; value: string; href?: string }[] = [];
+if (collection === 'labs') {
+  if (data.environment) facts.push({ label: 'Environment', value: data.environment });
+  if (data.repo) facts.push({ label: 'Source', value: data.repo.replace(/^https?:\/\//, ''), href: data.repo });
+}
+if (collection === 'measurements') {
+  if (data.period) facts.push({ label: 'Period', value: data.period });
+  if (data.vantagePoints?.length) facts.push({ label: 'Vantage points', value: data.vantagePoints.join(', ') });
+  if (data.dataset) facts.push({ label: 'Dataset', value: data.dataset.split('/').pop()!, href: url(data.dataset) });
+}
+if (project) facts.push({ label: 'Project', value: project.data.title, href: url(`/projects/${project.id}/`) });
+---
+
+<BaseLayout title={data.title} description={data.description} type="article" publishedTime={data.date} noindex={data.draft} image={data.cover}>
+  <article class="post">
+    <header class="post-header shell">
+      <nav class="crumbs mono" aria-label="Breadcrumb">
+        <a href={url(meta.href)}>{meta.label}</a>
+        <span aria-hidden="true">/</span>
+        <a href={url(`${meta.href}?category=${category?.slug ?? ''}#entries`)}>{data.category}</a>
+      </nav>
+      <h1>
+        {data.title}
+        {data.draft && <span class="status" data-status="Draft">Draft</span>}
+      </h1>
+      <p class="post-desc">{data.description}</p>
+      <div class="post-meta mono">
+        <time datetime={isoDate(data.date)}>{formatDate(data.date)}</time>
+        {
+          data.updated && (
+            <span>
+              Updated <time datetime={isoDate(data.updated)}>{formatDate(data.updated)}</time>
+            </span>
+          )
+        }
+        <span>{item.readingTime} min read</span>
+        {data.language === 'ko' && <span>한국어</span>}
+      </div>
+      {
+        data.tags.length > 0 && (
+          <ul class="tags post-tags" aria-label="Tags">
+            {data.tags.map((t: string) => (
+              <li>
+                <a class="tag tag-mono" href={url(`${meta.href}?tag=${encodeURIComponent(t)}#entries`)}>
+                  {t}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      {
+        facts.length > 0 && (
+          <dl class="facts">
+            {facts.map((f) => (
+              <div>
+                <dt class="mono">{f.label}</dt>
+                <dd>{f.href ? <a href={f.href}>{f.value}</a> : f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+    </header>
+
+    <div class="post-body shell">
+      <div class="prose">
+        <Content components={mdxComponents} />
+      </div>
+      <aside class="post-aside">
+        <Toc {headings} />
+      </aside>
+    </div>
+
+    <footer class="post-footer shell">
+      {
+        related.length > 0 && (
+          <section aria-labelledby="related-title">
+            <h2 class="block-title" id="related-title">
+              <span class="mono">→</span>Related posts
+            </h2>
+            <div class="article-list">
+              {related.map((p) => (
+                <ArticleRow item={p} showType showTags={false} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+      <a class="text-link back" href={url(meta.href)}>
+        <span class="arrow" aria-hidden="true">←</span> All {meta.label.toLowerCase()}
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .post-header {
+    padding: 64px 0 48px;
+  }
+
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--subtle);
+    font-size: 0.75rem;
+  }
+
+  .crumbs a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  h1 {
+    max-width: 900px;
+    margin-top: 20px;
+    font-size: clamp(2.125rem, 4.6vw, 3.5rem);
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+
+  h1 .status {
+    margin-left: 14px;
+    vertical-align: middle;
+    font-family: var(--font-body);
+    letter-spacing: 0.04em;
+  }
+
+  .post-desc {
+    max-width: 720px;
+    margin-top: 20px;
+    color: var(--muted);
+    font-size: 1.125rem;
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin-top: 24px;
+    color: var(--subtle);
+    font-size: 0.75rem;
+  }
+
+  .post-tags {
+    margin-top: 18px;
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 40px;
+    max-width: 900px;
+    margin: 28px 0 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .facts dt {
+    color: var(--subtle);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .facts dd {
+    margin: 2px 0 0;
+    font-size: 0.9375rem;
+  }
+
+  .facts a {
+    color: var(--accent);
+  }
+
+  .post-body {
+    display: grid;
+    grid-template-columns: minmax(0, var(--prose-width)) 220px;
+    justify-content: space-between;
+    gap: 64px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-footer {
+    padding: 80px 0 96px;
+  }
+
+  .post-footer section {
+    margin-bottom: 48px;
+  }
+
+  @media (max-width: 1099px) {
+    .post-body {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+
+    .post-aside {
+      order: -1;
+    }
+
+    .prose {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .post-header {
+      padding: 44px 0 36px;
+    }
+  }
+</style>
+
+<script>
+  import { enhanceCodeBlocks } from '@/scripts/code-blocks';
+  import { renderMermaid } from '@/scripts/mermaid';
+
+  enhanceCodeBlocks();
+  renderMermaid();
+</script>

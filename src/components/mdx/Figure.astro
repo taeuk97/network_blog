@@ -1,0 +1,57 @@
+---
+/**
+ * <Figure src="/diagrams/lab-01-topology.svg" alt="..." caption="Figure 1. Lab topology" />
+ * `src` is a path under public/ — the base path is added automatically.
+ */
+import { url } from '@/lib/url';
+
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  /** Max display width in px (optional) */
+  width?: number;
+  /** Add a light background for diagrams exported with transparent/black text */
+  light?: boolean;
+}
+const { src, alt, caption, width, light = false } = Astro.props;
+---
+
+<figure class:list={['figure', { light }]} style={width ? `--fig-w:${width}px` : undefined}>
+  <a href={url(src)} target="_blank" rel="noopener" aria-label={`Open full size: ${alt}`}>
+    <img src={url(src)} {alt} loading="lazy" decoding="async" />
+  </a>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .figure {
+    margin: 2em 0;
+  }
+
+  .figure a {
+    display: block;
+    max-width: var(--fig-w, 100%);
+    margin-inline: auto;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+  }
+
+  .figure.light a {
+    background: #f4f6fb;
+  }
+
+  .figure img {
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  figcaption {
+    margin-top: 12px;
+    color: var(--subtle);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+</style>

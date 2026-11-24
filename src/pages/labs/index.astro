@@ -1,0 +1,79 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import CategoryGrid from '@/components/CategoryGrid.astro';
+import ContentIndex from '@/components/ContentIndex.astro';
+import { labCategories, labStructure } from '@/config/taxonomy';
+import { getPosts } from '@/lib/content';
+
+const items = await getPosts('labs');
+const subtitle = 'Building networks, testing protocols, and troubleshooting real problems.';
+---
+
+<BaseLayout title="Network Labs" description={subtitle}>
+  <PageHero eyebrow="Build · Hands-on Practice" title="Network *Labs*" {subtitle} />
+
+  <section class="page-section shell" aria-labelledby="cat-title">
+    <h2 class="block-title" id="cat-title"><span class="mono">01</span>Categories</h2>
+    <CategoryGrid categories={labCategories} {items} />
+  </section>
+
+  <section class="page-section shell" id="entries" aria-labelledby="entries-title">
+    <h2 class="block-title" id="entries-title"><span class="mono">02</span>Lab reports</h2>
+    <ContentIndex {items} categories={labCategories} folder="labs" noun="labs" />
+  </section>
+
+  <section class="page-section shell" aria-labelledby="structure-title">
+    <h2 class="block-title" id="structure-title"><span class="mono">03</span>How every lab is written</h2>
+    <p class="block-lede">
+      Each lab follows the same structure, so results are reproducible and easy to compare — from the objective and
+      topology to verification output and the lessons learned.
+    </p>
+    <ol class="structure">
+      {
+        labStructure.map((step, i) => (
+          <li>
+            <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+            {step}
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</BaseLayout>
+
+<style>
+  .structure {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1px;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  .structure li {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    background: var(--bg-elevated);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .structure .mono {
+    color: var(--primary);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 900px) {
+    .structure {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

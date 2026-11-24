@@ -1,0 +1,48 @@
+---
+/** <Callout type="note|tip|warning" title="Optional">Markdown content</Callout> */
+interface Props {
+  type?: 'note' | 'tip' | 'warning';
+  title?: string;
+}
+const { type = 'note', title } = Astro.props;
+const label = title ?? { note: 'Note', tip: 'Tip', warning: 'Warning' }[type];
+---
+
+<aside class="callout" data-type={type}>
+  <p class="callout-title mono">{label}</p>
+  <div class="callout-body"><slot /></div>
+</aside>
+
+<style>
+  .callout {
+    --c: var(--accent);
+    margin: 1.75em 0;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--c);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: rgba(16, 22, 38, 0.7);
+    font-size: 0.9375rem;
+  }
+
+  .callout[data-type='tip'] {
+    --c: var(--success);
+  }
+
+  .callout[data-type='warning'] {
+    --c: var(--warning);
+  }
+
+  .callout-title {
+    margin-bottom: 4px;
+    color: var(--c);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .callout-body > :global(* + *) {
+    margin-top: 0.75em;
+  }
+</style>

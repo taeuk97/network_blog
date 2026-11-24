@@ -1,0 +1,327 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHero from '@/components/PageHero.astro';
+import Icon from '@/components/Icon.astro';
+import { about } from '@/config/about';
+import { links } from '@/config/site';
+import { contactLinks } from '@/lib/links';
+import { url } from '@/lib/url';
+
+const contacts = contactLinks().filter((c) => c.key !== 'cv');
+const pending = 'To be added.';
+---
+
+<BaseLayout title="About" description="About Taeuk Im — research and engineering interests in networks, Internet measurement and satellite networks.">
+  <PageHero
+    eyebrow="About"
+    title="Learning how networks *really work.*"
+    subtitle="Research on satellite communications and networks, and a hands-on path toward network engineering."
+  />
+
+  <div class="shell about">
+    <section class="row" aria-labelledby="bio">
+      <h2 id="bio"><span class="mono">01</span>Biography</h2>
+      <div class="content bio">
+        {about.biography.map((p, i) => <p class:list={{ first: i === 0 }}>{p}</p>)}
+        {
+          contacts.length > 0 && (
+            <div class="bio-links">
+              {contacts.map((c) => (
+                <a class="text-link" href={c.href} {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                  <Icon name={c.icon} size={16} /> {c.label}
+                </a>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="row" aria-labelledby="edu">
+      <h2 id="edu"><span class="mono">02</span>Education</h2>
+      <div class="content">
+        {
+          about.education.length ? (
+            <ul class="timeline">
+              {about.education.map((e) => (
+                <li>
+                  <span class="t-period mono">{e.period}</span>
+                  <div>
+                    <p class="t-title">{e.title}</p>
+                    <p class="t-org">{e.org}</p>
+                    {e.detail && <p class="t-detail">{e.detail}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="pending">{pending}</p>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="row" aria-labelledby="research">
+      <h2 id="research"><span class="mono">03</span>Research Interests</h2>
+      <div class="content">
+        {
+          about.researchInterests.length ? (
+            <ul class="pill-list">
+              {about.researchInterests.map((r) => <li>{r}</li>)}
+            </ul>
+          ) : (
+            <p class="pending">{pending}</p>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="row" aria-labelledby="engineering">
+      <h2 id="engineering"><span class="mono">04</span>Engineering Interests</h2>
+      <div class="content">
+        <ul class="pill-list">
+          {about.engineeringInterests.map((r) => <li>{r}</li>)}
+        </ul>
+        <p class="note">Areas I’m actively studying and exploring — see <a href={url('/#explore')}>What I Explore</a>.</p>
+      </div>
+    </section>
+
+    <section class="row" aria-labelledby="skills">
+      <h2 id="skills"><span class="mono">05</span>Technical Skills</h2>
+      <div class="content">
+        {
+          about.technicalSkills.length ? (
+            <dl class="skills">
+              {about.technicalSkills.map((g) => (
+                <div>
+                  <dt class="mono">{g.group}</dt>
+                  <dd>
+                    <ul class="tags">
+                      {g.items.map((s) => (
+                        <li class="tag tag-mono">{s}</li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p class="pending">{pending}</p>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="row" aria-labelledby="experience">
+      <h2 id="experience"><span class="mono">06</span>Research Experience</h2>
+      <div class="content">
+        {
+          about.researchExperience.length ? (
+            <ul class="timeline">
+              {about.researchExperience.map((e) => (
+                <li>
+                  <span class="t-period mono">{e.period}</span>
+                  <div>
+                    <p class="t-title">{e.title}</p>
+                    <p class="t-org">{e.org}</p>
+                    {e.detail && <p class="t-detail">{e.detail}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="pending">{pending}</p>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="row" aria-labelledby="pubs">
+      <h2 id="pubs"><span class="mono">07</span>Publications</h2>
+      <div class="content">
+        {
+          about.publications.length ? (
+            <ol class="pubs">
+              {about.publications.map((p) => (
+                <li>
+                  <p class="t-title">{p.url ? <a href={p.url}>{p.title}</a> : p.title}</p>
+                  <p class="t-org">{p.authors}</p>
+                  <p class="t-detail mono">
+                    {p.venue}, {p.year}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p class="pending">{pending}</p>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="row" aria-labelledby="cv">
+      <h2 id="cv"><span class="mono">08</span>CV</h2>
+      <div class="content">
+        {
+          links.cv ? (
+            <a class="button button-ghost" href={url(links.cv)}>
+              <Icon name="file" size={19} /> Download CV <span class="arrow" aria-hidden="true">↓</span>
+            </a>
+          ) : (
+            <p class="pending">A downloadable CV will be added here.</p>
+          )
+        }
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .about {
+    padding-bottom: 96px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 40px;
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .row h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-size: 1.25rem;
+    letter-spacing: -0.015em;
+  }
+
+  .row h2 .mono {
+    color: var(--primary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .content {
+    max-width: 720px;
+    color: var(--muted);
+  }
+
+  .bio p + p {
+    margin-top: 18px;
+  }
+
+  .bio p.first {
+    color: var(--text);
+    font-size: 1.1875rem;
+    line-height: 1.65;
+  }
+
+  .bio-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 28px;
+  }
+
+  .pending {
+    color: var(--subtle);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+
+  .pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pill-list li {
+    padding: 6px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    color: var(--text);
+    font-size: 0.9375rem;
+  }
+
+  .note {
+    margin-top: 16px;
+    color: var(--subtle);
+    font-size: 0.875rem;
+  }
+
+  .note a {
+    color: var(--accent);
+  }
+
+  .timeline,
+  .pubs {
+    display: grid;
+    gap: 22px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .timeline li {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .t-period {
+    color: var(--subtle);
+    font-size: 0.8125rem;
+    padding-top: 2px;
+  }
+
+  .t-title {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .t-title a {
+    color: var(--text);
+  }
+
+  .t-org {
+    color: var(--muted);
+  }
+
+  .t-detail {
+    margin-top: 4px;
+    font-size: 0.875rem;
+    color: var(--subtle);
+  }
+
+  .skills {
+    display: grid;
+    gap: 18px;
+    margin: 0;
+  }
+
+  .skills dt {
+    margin-bottom: 8px;
+    color: var(--subtle);
+    font-size: 0.75rem;
+  }
+
+  .skills dd {
+    margin: 0;
+  }
+
+  @media (max-width: 800px) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding: 32px 0;
+    }
+
+    .timeline li {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+</style>

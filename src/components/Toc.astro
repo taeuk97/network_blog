@@ -1,0 +1,106 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+const items = Astro.props.headings.filter((h) => h.depth >= 2 && h.depth <= 3 && h.slug !== 'footnote-label');
+---
+
+{
+  items.length >= 2 && (
+    <nav class="toc" aria-labelledby="toc-title">
+      <p class="toc-title mono" id="toc-title">On this page</p>
+      <ol>
+        {items.map((h) => (
+          <li class:list={[`d${h.depth}`]}>
+            <a href={`#${h.slug}`} data-toc-link={h.slug}>
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
+<style>
+  .toc {
+    position: sticky;
+    top: calc(var(--header-height) + 32px);
+    max-height: calc(100vh - var(--header-height) - 64px);
+    overflow-y: auto;
+    padding-left: 18px;
+    border-left: 1px solid var(--border);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .toc-title {
+    margin-bottom: 12px;
+    color: var(--subtle);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  ol {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .d3 {
+    padding-left: 12px;
+  }
+
+  a {
+    display: block;
+    color: var(--subtle);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  a:hover {
+    color: var(--text);
+  }
+
+  a.active {
+    color: var(--accent);
+  }
+
+  @media (max-width: 1099px) {
+    .toc {
+      position: static;
+      max-height: none;
+      margin-bottom: 40px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(16, 22, 38, 0.6);
+    }
+  }
+</style>
+
+<script>
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+  if (links.length && 'IntersectionObserver' in window) {
+    const map = new Map(links.map((a) => [a.dataset.tocLink!, a]));
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove('active'));
+            map.get(e.target.id)?.classList.add('active');
+          }
+        }
+      },
+      { rootMargin: '-15% 0px -75% 0px' },
+    );
+    for (const id of map.keys()) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+  }
+</script>

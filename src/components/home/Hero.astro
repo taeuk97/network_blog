@@ -1,0 +1,195 @@
+---
+import { url } from '@/lib/url';
+---
+
+<section class="hero" id="home" aria-labelledby="hero-title">
+  <div class="shell hero-inner">
+    <p class="eyebrow hero-eyebrow" style="--i:0">
+      <span class="item">Network Engineering</span><span class="sep" aria-hidden="true">·</span><span class="item">Internet Measurement</span><span class="sep" aria-hidden="true">·</span><span class="item">Satellite Networks</span>
+    </p>
+    <p class="hero-welcome" style="--i:1">Welcome to my engineering journey.</p>
+    <h1 id="hero-title" style="--i:2">
+      <span class="hero-intro">I’m</span>
+      <span class="hero-name">Taeuk Im<span class="dot">.</span></span>
+    </h1>
+    <p class="hero-role" style="--i:3">Exploring how networks work.</p>
+    <p class="hero-summary" style="--i:4">
+      I study, build, and measure networks — from terrestrial infrastructure to satellite Internet — to understand how
+      communication systems operate in the real world.
+    </p>
+    <div class="hero-actions" style="--i:5">
+      <a class="button button-primary" href="#build">
+        Explore my work <span class="arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="button button-secondary" href={url('/about/')}>About me</a>
+    </div>
+    <a class="scroll-cue" href="#explore" style="--i:6">
+      <span class="cue-arrow" aria-hidden="true">↓</span>
+      Keep exploring
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - var(--header-height));
+    padding: 64px 0 40px;
+    text-align: center;
+  }
+
+  .hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Staggered entrance */
+  .hero-inner > * {
+    animation: rise 0.9s var(--ease) both;
+    animation-delay: calc(var(--i, 0) * 90ms + 120ms);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .hero-eyebrow .sep {
+    margin: 0 10px;
+    color: var(--primary);
+  }
+
+  .hero-eyebrow .item {
+    white-space: nowrap;
+  }
+
+  .hero-welcome {
+    margin: 28px 0 10px;
+    color: var(--muted);
+    font-size: 1.125rem;
+  }
+
+  h1 {
+    font-size: clamp(3rem, 7.5vw, 6rem);
+    letter-spacing: -0.045em;
+    line-height: 1.04;
+  }
+
+  .hero-intro {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.55em;
+    color: var(--text);
+  }
+
+  .hero-name {
+    color: var(--primary);
+  }
+
+  .hero-name .dot {
+    color: var(--accent);
+  }
+
+  .hero-role {
+    margin-top: 26px;
+    font-size: clamp(1.125rem, 2.2vw, 1.5rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-summary {
+    max-width: 620px;
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 1.0625rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 34px;
+  }
+
+  .scroll-cue {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 60px;
+    color: var(--muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .scroll-cue:hover {
+    color: var(--text);
+  }
+
+  .cue-arrow {
+    color: var(--accent);
+    font-size: 1.375rem;
+    line-height: 1;
+    animation: nudge 2.4s ease-in-out infinite;
+  }
+
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(5px);
+    }
+  }
+
+  @media (max-width: 800px) {
+    .hero {
+      min-height: auto;
+      padding: 88px 0 72px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .hero {
+      padding: 64px 0 56px;
+    }
+
+    .hero-eyebrow {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.75rem;
+    }
+
+    .hero-eyebrow .sep {
+      display: none;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 12vw, 3.5rem);
+    }
+
+    .hero-summary {
+      font-size: 1rem;
+    }
+
+    .hero-actions {
+      gap: 12px;
+    }
+
+    .scroll-cue {
+      margin-top: 44px;
+    }
+  }
+</style>

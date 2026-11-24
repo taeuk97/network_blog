@@ -1,0 +1,63 @@
+---
+import { collectionMeta } from '@/config/taxonomy';
+import { formatDate, isoDate, type PostItem } from '@/lib/content';
+import { url } from '@/lib/url';
+
+interface Props {
+  item: PostItem;
+  /** Show which section (Blog / Lab / Measurement) the post belongs to. */
+  showType?: boolean;
+  showTags?: boolean;
+  headingLevel?: 'h2' | 'h3';
+}
+const { item, showType = false, showTags = true, headingLevel: H = 'h3' } = Astro.props;
+const tagBase = collectionMeta[item.collection].href;
+---
+
+<article
+  class="article-row"
+  data-item
+  data-category={item.category}
+  data-tags={item.tags.join('|')}
+  data-search={[item.title, item.description, item.category, ...item.tags].join(' ').toLowerCase()}
+>
+  <div class="article-meta">
+    <span class="category">{showType ? `${collectionMeta[item.collection].short} · ${item.category}` : item.category}</span>
+    <time datetime={isoDate(item.date)}>{formatDate(item.date)}</time>
+    <span class="reading">{item.readingTime} min read</span>
+  </div>
+  <div>
+    <H>
+      <a href={item.href}>{item.title}<span class="arrow" aria-hidden="true">↗</span></a>
+      {item.draft && <span class="status" data-status="Draft">Draft</span>}
+    </H>
+    <p>{item.description}</p>
+    {
+      showTags && item.tags.length > 0 && (
+        <ul class="tags" aria-label="Tags">
+          {item.tags.map((t) => (
+            <li>
+              <a class="tag tag-mono" href={url(`${tagBase}?tag=${encodeURIComponent(t)}`)}>
+                {t}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  h2,
+  h3 {
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    letter-spacing: -0.01em;
+  }
+
+  .status {
+    margin-left: 10px;
+    vertical-align: middle;
+    font-family: var(--font-body);
+  }
+</style>

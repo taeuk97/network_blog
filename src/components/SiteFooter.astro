@@ -1,0 +1,131 @@
+---
+import { navigation, site } from '@/config/site';
+import { contactLinks } from '@/lib/links';
+import { url } from '@/lib/url';
+
+const year = new Date().getFullYear();
+const range = year > site.since ? `${site.since}–${year}` : `${year}`;
+const contacts = contactLinks();
+---
+
+<footer class="site-footer">
+  <div class="shell footer-inner">
+    <div class="footer-id">
+      <a class="footer-brand" href={url('/')}>{site.logo}<span>.</span></a>
+      <p class="footer-slogan">{site.slogan}</p>
+      <p class="footer-sub">{site.supportingSlogan}</p>
+    </div>
+
+    <nav class="footer-nav" aria-label="Footer">
+      <ul>
+        {
+          navigation.map((item) => (
+            <li>
+              <a href={url(item.href)}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+      <ul>
+        {
+          contacts.map((c) => (
+            <li>
+              <a href={c.href} {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                {c.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+  <div class="shell footer-base">
+    <p>© {range} {site.name}</p>
+    <a href="#top" class="to-top">Back to top ↑</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    background: rgba(10, 14, 26, 0.9);
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 48px 0 36px;
+  }
+
+  .footer-brand {
+    font: 700 1.5rem/1 var(--font-display);
+    letter-spacing: -0.05em;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .footer-brand span {
+    color: var(--primary);
+  }
+
+  .footer-slogan {
+    margin-top: 18px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .footer-sub {
+    margin-top: 2px;
+  }
+
+  .footer-nav {
+    display: flex;
+    gap: 64px;
+  }
+
+  .footer-nav ul {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer-nav a,
+  .to-top {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-nav a:hover,
+  .to-top:hover {
+    color: var(--accent);
+  }
+
+  .footer-base {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 20px 0 28px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+    color: var(--subtle);
+  }
+
+  @media (max-width: 640px) {
+    .footer-inner {
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .footer-nav {
+      gap: 48px;
+    }
+  }
+</style>

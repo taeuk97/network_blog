@@ -1,0 +1,49 @@
+# Builds the site and deploys it to GitHub Pages on every push to main.
+# Not active until the repository exists on GitHub and Pages is set to
+# "GitHub Actions" (Settings → Pages → Build and deployment → Source).
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          # User site (repo "taeuk97.github.io"): BASE_PATH=/
+          # Project site (repo "<name>"):        BASE_PATH=/<name>
+          SITE_URL: https://taeuk97.github.io
+          BASE_PATH: ${{ github.event.repository.name == 'taeuk97.github.io' && '/' || format('/{0}', github.event.repository.name) }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

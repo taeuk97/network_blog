@@ -1,0 +1,45 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/home/Hero.astro';
+import ExploreSection from '@/components/home/ExploreSection.astro';
+import BuildingSection from '@/components/home/BuildingSection.astro';
+import DocumentSection from '@/components/home/DocumentSection.astro';
+import ConnectSection from '@/components/home/ConnectSection.astro';
+---
+
+<BaseLayout home>
+  <Hero />
+  <ExploreSection />
+  <BuildingSection />
+  <DocumentSection />
+  <ConnectSection />
+</BaseLayout>
+
+<style is:global>
+  /* Landing page: each section fills the viewport on larger screens, with gentle snapping */
+  @media (min-width: 901px) and (min-height: 700px) {
+    html.home {
+      scroll-snap-type: y proximity;
+    }
+
+    html.home main > section {
+      scroll-snap-align: start;
+    }
+
+    html.home main > .section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: calc(100svh - var(--header-height));
+      padding: clamp(64px, 9svh, 104px) 0;
+    }
+
+    html.home main > .section > .shell {
+      width: min(var(--content-width), calc(100% - var(--gutter) * 2));
+    }
+  }
+
+  html.home .site-footer {
+    background: rgba(10, 14, 26, 0.72);
+  }
+</style>
