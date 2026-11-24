@@ -18,7 +18,8 @@ export const blogCategories = [
   { name: 'Routing & Switching', slug: 'routing-switching', topics: ['BGP', 'OSPF', 'IS-IS', 'VLAN', 'STP'] },
   { name: 'Service Provider Networks', slug: 'service-provider', topics: ['MPLS', 'Peering', 'Transit', 'IXP', 'PoP'] },
   { name: 'Transport Protocols', slug: 'transport', topics: ['TCP', 'UDP', 'QUIC', 'Congestion Control'] },
-  { name: 'Mobile & Satellite Networks', slug: 'mobile-satellite', topics: ['LTE', '5G', 'NTN', 'Starlink'] },
+  { name: 'Mobile Networks', slug: 'mobile', topics: ['LTE', '5G'] },
+  { name: 'Satellite Networks', slug: 'satellite', topics: ['NTN', 'Starlink'] },
   { name: 'Systems & Automation', slug: 'systems-automation', topics: ['Linux', 'Docker', 'AWS', 'Python', 'Ansible'] },
 ] as const satisfies readonly Category[];
 

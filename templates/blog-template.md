@@ -7,7 +7,7 @@ date: 2026-11-24
 # updated: 2026-12-01
 category: "Routing & Switching"
 # One of: Network Fundamentals | Routing & Switching | Service Provider Networks |
-#         Transport Protocols | Mobile & Satellite Networks | Systems & Automation
+#         Transport Protocols | Mobile Networks | Satellite Networks | Systems & Automation
 tags:
   - BGP
   - Routing
